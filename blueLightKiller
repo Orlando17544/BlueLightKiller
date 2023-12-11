@@ -1,0 +1,109 @@
+#!/bin/bash
+
+# Points: (These should be entered by the user)
+# (NIGHTLY_BRIGHTNESS, NIGHTLY_TEMPERATURE), 
+# (DAYLIGHT_BRIGHTNESS, DAYLIGHT_TEMPERATURE)
+declare -r NIGHTLY_BRIGHTNESS=5
+declare -r NIGHTLY_TEMPERATURE=1900
+
+declare -r DAYLIGHT_BRIGHTNESS=100
+declare -r DAYLIGHT_TEMPERATURE=5000
+
+# Extrapolation and interpolation using the equation of the line given two points
+# m = (y2 - y1) / (x2 - x1)
+slope=$(echo "($DAYLIGHT_TEMPERATURE-$NIGHTLY_TEMPERATURE)/($DAYLIGHT_BRIGHTNESS-$NIGHTLY_BRIGHTNESS)" | bc -l)
+
+# y = m(x - x1) + y1
+# 0 is minBrightness
+minTemperature=$(echo "($slope*(0-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" | bc)
+# 100 is maxBrightness
+maxTemperature=$(echo "($slope*(100-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" | bc)
+
+echo "Min temperature: $minTemperature"
+echo "Max temperature: $maxTemperature"
+
+range="$((maxTemperature-minTemperature))"
+
+# Calculate increment
+increment=$(echo "$range/19" | bc)
+
+echo "Increment: $increment"
+
+while true
+do
+	# Calculate brightness in the range of 0 to quantumrange
+	median="$(fswebcam --log /dev/null --png 0 - | magick convert - -colorspace Gray -format "%[median]" info:)"
+
+	# Calculate brightness in the range of 0 to 1
+	brightness="$(magick convert xc: -format "%[fx:$median/quantumrange]" info:)"
+
+	# Convert bightness in the range of 0 to 100 and convert it to int
+	brightness=$(echo "$brightness*100/1" | bc)
+
+	echo "Brightness: $brightness"
+
+	# Adjust color temperature according to brightness
+	if (($brightness>=0 && $brightness<5))
+	then
+		xsct "$((minTemperature+0*increment))"
+	elif (($brightness>=5 && $brightness<10))
+	then
+		xsct "$((minTemperature+1*increment))"
+	elif (($brightness>=10 && $brightness<15))
+	then
+		xsct "$((minTemperature+2*increment))"
+	elif (($brightness>=15 && $brightness<20))
+	then
+		xsct "$((minTemperature+3*increment))"
+	elif (($brightness>=20 && $brightness<25))
+	then
+		xsct "$((minTemperature+4*increment))"
+	elif (($brightness>=25 && $brightness<30))
+	then
+		xsct "$((minTemperature+5*increment))"
+	elif (($brightness>=30 && $brightness<35))
+	then
+		xsct "$((minTemperature+6*increment))"
+	elif (($brightness>=35 && $brightness<40))
+	then
+		xsct "$((minTemperature+7*increment))"
+	elif (($brightness>=40 && $brightness<45))
+	then
+		xsct "$((minTemperature+8*increment))"
+	elif (($brightness>=45 && $brightness<50))
+	then
+		xsct "$((minTemperature+9*increment))"
+	elif (($brightness>=50 && $brightness<55))
+	then
+		xsct "$((minTemperature+10*increment))"
+	elif (($brightness>=55 && $brightness<60))
+	then
+		xsct "$((minTemperature+11*increment))"
+	elif (($brightness>=60 && $brightness<65))
+	then
+		xsct "$((minTemperature+12*increment))"
+	elif (($brightness>=65 && $brightness<70))
+	then
+		xsct "$((minTemperature+13*increment))"
+	elif (($brightness>=70 && $brightness<75))
+	then
+		xsct "$((minTemperature+14*increment))"
+	elif (($brightness>=75 && $brightness<80))
+	then
+		xsct "$((minTemperature+15*increment))"
+	elif (($brightness>=80 && $brightness<85))
+	then
+		xsct "$((minTemperature+16*increment))"
+	elif (($brightness>=85 && $brightness<90))
+	then
+		xsct "$((minTemperature+17*increment))"
+	elif (($brightness>=90 && $brightness<95))
+	then
+		xsct "$((minTemperature+18*increment))"
+	elif (($brightness>=95 && $brightness<=100))
+	then
+		xsct "$((minTemperature+19*increment))"
+	fi
+
+	sleep 30m
+done
