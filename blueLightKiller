@@ -19,15 +19,15 @@ minTemperature=$(echo "($slope*(0-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" 
 # 100 is maxBrightness
 maxTemperature=$(echo "($slope*(100-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" | bc)
 
-echo "Min temperature: $minTemperature"
-echo "Max temperature: $maxTemperature"
+#echo "Min temperature: $minTemperature"
+#echo "Max temperature: $maxTemperature"
 
 range="$((maxTemperature-minTemperature))"
 
 # Calculate increment
 increment=$(echo "$range/19" | bc)
 
-echo "Increment: $increment"
+#echo "Increment: $increment"
 
 while true
 do
@@ -40,7 +40,7 @@ do
 	# Convert bightness in the range of 0 to 100 and convert it to int
 	brightness=$(echo "$brightness*100/1" | bc)
 
-	echo "Brightness: $brightness"
+	echo "Current brightness: $brightness"
 
 	# Adjust color temperature according to brightness
 	if (($brightness>=0 && $brightness<5))
@@ -105,5 +105,9 @@ do
 		xsct "$((minTemperature+19*increment))"
 	fi
 
+	echo "Adjusted temperature color to: $(xsct | grep -Po '(?<=temperature ~ )\d+')"
+
 	sleep 30m
+
+	clear
 done
