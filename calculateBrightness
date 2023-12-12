@@ -1,0 +1,10 @@
+# Calculate brightness in the range of 0 to quantumrange
+median="$(fswebcam --log /dev/null --png 0 - | magick convert - -colorspace Gray -format "%[median]" info:)"
+
+# Calculate brightness in the range of 0 to 1
+brightness="$(magick convert xc: -format "%[fx:$median/quantumrange]" info:)"
+
+# Convert bightness in the range of 0 to 100 and convert it to int
+brightness=$(echo "$brightness*100/1" | bc)
+
+echo "Brightness: $brightness"
