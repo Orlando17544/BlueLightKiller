@@ -19,15 +19,10 @@ minTemperature=$(echo "($slope*(0-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" 
 # 100 is maxBrightness
 maxTemperature=$(echo "($slope*(100-$NIGHTLY_BRIGHTNESS)+$NIGHTLY_TEMPERATURE)/1" | bc)
 
-#echo "Min temperature: $minTemperature"
-#echo "Max temperature: $maxTemperature"
-
 range="$((maxTemperature-minTemperature))"
 
 # Calculate increment
 increment=$(echo "$range/19" | bc)
-
-#echo "Increment: $increment"
 
 while true
 do
